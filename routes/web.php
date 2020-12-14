@@ -1,6 +1,6 @@
 <?php
 
-/** @var \Laravel\Lumen\Routing\Router $router */
+/** @var Router $router */
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +13,17 @@
 |
 */
 
+use Laravel\Lumen\Routing\Router;
+
 $router->get('/', function () use ($router) {
     return $router->app->version();
 });
+
+$router->group(['prefix' => '/locale'], function() use ($router) {
+    $router->get('/', 'LocaleController@List');
+    $router->get('/{id}', 'LocaleController@get');
+    $router->post('/', 'LocaleController@create');
+    $router->put('/{id}', 'LocaleController@update');
+    $router->delete('/{id}', 'LocaleController@delete');
+});
+
