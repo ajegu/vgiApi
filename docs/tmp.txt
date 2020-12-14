@@ -1,0 +1,24 @@
+QueryByPk
+ - Initialise DynamoDB Params
+ - Add customs Params for specified query <- it's his responsibility
+ - execute query
+ - transform DynamoDB Result to expected response
+
+
+Client->QueryByPk
+        <- InitializeParameters
+        -> AddCustomsParameters
+        <- ExecuteAction(Query)
+        <- TransformResult
+
+
+
+ClientAdapter
+- addTableName($args): $arg
++ query(array $args): $items
++ put($arg)
++ update($args)
+
+
+QueryFacade
++ queryByPk(string $partitionKey): Item[]
