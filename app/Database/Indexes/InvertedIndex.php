@@ -16,4 +16,10 @@ class InvertedIndex implements IndexInterface
         return 'sk';
     }
 
+    public function getSortKey(): string
+    {
+        return 'pk';
+    }
+
+
 }
