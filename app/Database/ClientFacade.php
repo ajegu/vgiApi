@@ -15,7 +15,7 @@ class ClientFacade
         private Marshaler $marshaler
     ) {}
 
-    public function findByPk(string $value, IndexInterface $index): array
+    public function findByPk(string $value, IndexInterface $index = null): array
     {
         $params = [];
         $partitionKey = 'pk';
@@ -27,6 +27,36 @@ class ClientFacade
 
         $params['KeyConditionExpression'] = $partitionKey . ' = :value';
         $params['ExpressionAttributeValues'] = [':value' => $this->marshaler->marshalValue($value)];
+
+        $result = $this->clientAdapter->query($params);
+
+        $items = [];
+        if (!empty($result)) {
+            $items = array_map(function(array $item) {
+                return $this->marshaler->unmarshalItem($item);
+            }, $result);
+        }
+
+        return $items;
+    }
+
+    public function findByPkAndSk(string $pkValue, string $skValue, IndexInterface $index = null): array
+    {
+        $params = [];
+        $partitionKey = 'pk';
+        $sortKey = 'sk';
+
+        if (null !== $index) {
+            $params['IndexName'] = $index->getName();
+            $partitionKey = $index->getPartitionKey();
+            $sortKey = $index->getSortKey();
+        }
+
+        $params['KeyConditionExpression'] = $partitionKey . ' = :pkValue and begins_with(' . $sortKey . ', :skValue)';
+        $params['ExpressionAttributeValues'] = [
+            ':pkValue' => $this->marshaler->marshalValue($pkValue),
+            ':skValue' => $this->marshaler->marshalValue($skValue),
+        ];
 
         $result = $this->clientAdapter->query($params);
 
