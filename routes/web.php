@@ -34,3 +34,11 @@ $router->group(['prefix' => '/month'], function() use ($router) {
     $router->put('/{id}', 'MonthController@update');
     $router->delete('/{id}', 'MonthController@delete');
 });
+
+$router->group(['prefix' => '/season'], function() use ($router) {
+    $router->get('/', 'SeasonController@list');
+    $router->get('/{id}', 'SeasonController@get');
+    $router->post('/', 'SeasonController@create');
+    $router->put('/{id}', 'SeasonController@update');
+    $router->delete('/{id}', 'SeasonController@delete');
+});
