@@ -25,6 +25,7 @@ class MonthMapper
         return new Month(
             id: $item['pk'],
             names: $names,
+            seasonId: $item['seasonId'],
             createdAt: $this->dateTimeHelper->createFromString($item['createdAt']),
             updatedAt: $this->dateTimeHelper->createFromString($item['updatedAt']),
         );
@@ -41,7 +42,8 @@ class MonthMapper
 
         return new Month(
             $data['id'],
-            $names
+            $names,
+            $data['seasonId']
         );
     }
 
@@ -51,6 +53,7 @@ class MonthMapper
         return [
             'pk' => $month->getId(),
             'sk' => Month::ENTITY_NAME,
+            'seasonId' => $month->getSeasonId(),
             'createdAt' => $this->dateTimeHelper->convertToString($month->getCreatedAt()),
             'updatedAt' => $this->dateTimeHelper->convertToString($month->getUpdatedAt())
         ];

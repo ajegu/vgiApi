@@ -13,16 +13,10 @@ class Month implements JsonSerializable
 {
     const ENTITY_NAME = 'Month';
 
-    /**
-     * Month constructor.
-     * @param string $id
-     * @param array $names
-     * @param DateTime|null $createdAt
-     * @param DateTime|null $updatedAt
-     */
     public function __construct(
         private string $id,
         private array $names,
+        private string $seasonId,
         private ?DateTime $createdAt = null,
         private ?DateTime $updatedAt = null,
     ) {}
@@ -57,6 +51,22 @@ class Month implements JsonSerializable
     public function setNames(array $names): void
     {
         $this->names = $names;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSeasonId(): string
+    {
+        return $this->seasonId;
+    }
+
+    /**
+     * @param string $seasonId
+     */
+    public function setSeasonId(string $seasonId): void
+    {
+        $this->seasonId = $seasonId;
     }
 
     /**
@@ -98,6 +108,7 @@ class Month implements JsonSerializable
         return [
             'id' => $this->getId(),
             'names' => array_map(fn(LocalizedText $text) => $text->jsonSerialize(),  $this->getNames()),
+            'seasonId' => $this->getSeasonId(),
             'createdAt' => $this->getCreatedAt() ? $this->getCreatedAt()->format(DateTimeHelper::DATE_FORMAT) : '',
             'updatedAt' => $this->getUpdatedAt() ? $this->getUpdatedAt()->format(DateTimeHelper::DATE_FORMAT) : '',
         ];

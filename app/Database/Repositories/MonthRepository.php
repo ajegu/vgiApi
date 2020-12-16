@@ -85,13 +85,13 @@ class MonthRepository extends AbstractRepository
         $lastNames = $this->updateNames($lastObject->getNames(), $nextObject->getNames(), $lastObject->getId());
         $lastObject->setNames($lastNames);
 
-        // TODO: Add season check
-//        if (false) {
-//            $lastObject->setUpdatedAt(new DateTime());
-//
-//            $monthItem = $this->mapper->mapMonthToItem($lastObject);
-//            $this->clientFacade->save($monthItem);
-//        }
+        if ($lastObject->getSeasonId() !== $nextObject->getSeasonId()) {
+            $lastObject->setSeasonId($nextObject->getSeasonId());
+            $lastObject->setUpdatedAt(new DateTime());
+
+            $monthItem = $this->mapper->mapMonthToItem($lastObject);
+            $this->clientFacade->save($monthItem);
+        }
 
         return $lastObject;
     }

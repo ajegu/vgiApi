@@ -8,6 +8,7 @@ use App\Database\Repositories\MonthRepository;
 use App\Exceptions\ItemNotFound;
 use App\Mappers\MonthMapper;
 use App\Rules\LocaleUnknown;
+use App\Rules\SeasonUnknown;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
@@ -17,7 +18,8 @@ class MonthController extends Controller
     public function __construct(
         private MonthRepository $repo,
         private MonthMapper $mapper,
-        private LocaleUnknown $localeUnknown
+        private LocaleUnknown $localeUnknown,
+        private SeasonUnknown $seasonUnknown
     ) {}
 
     public function list(): JsonResponse
@@ -47,6 +49,7 @@ class MonthController extends Controller
             'names' => ['required', 'array'],
             'names.*.localeId' => [$this->localeUnknown],
             'names.*.name' => ['required', 'string'],
+            'seasonId' => ['required', 'string', $this->seasonUnknown]
         ]);
 
         $month = $this->mapper->mapRequestDataToMonth($requestData);
@@ -69,7 +72,8 @@ class MonthController extends Controller
             'id' => ['required', 'string'],
             'names' => ['required', 'array'],
             'names.*.localeId' => [$this->localeUnknown],
-            'names.*.name' => ['required', 'string']
+            'names.*.name' => ['required', 'string'],
+            'seasonId' => ['required', 'string', $this->seasonUnknown]
         ]);
 
         $lastMonth = $this->repo->findOne($id);
