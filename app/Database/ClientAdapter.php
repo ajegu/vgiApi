@@ -100,4 +100,31 @@ class ClientAdapter
             '@metadata' => $result->get('@metadata'),
         ]);
     }
+
+    public function scan(): array
+    {
+        $params['TableName'] = $this->tableName;
+        $params['ReturnConsumedCapacity'] = 'TOTAL';
+
+        try {
+            $result = $this->client->scan($params);
+        } catch (DynamoDbException $exception) {
+            $this->logger->error($exception->getMessage(), [
+                'request' => $exception->getRequest(),
+                'response' => $exception->getResponse(),
+                'trace' => $exception->getTraceAsString()
+            ]);
+
+            throw $exception;
+        }
+
+        $this->logger->debug('Result from DynamoDB:', [
+            'Count' => $result->get('Count'),
+            'ScannedCount' => $result->get('ScannedCount'),
+            'ConsumedCapacity' => $result->get('ConsumedCapacity'),
+            '@metadata' => $result->get('@metadata'),
+        ]);
+
+        return $result->get('Items');
+    }
 }
