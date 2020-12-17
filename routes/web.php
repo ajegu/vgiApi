@@ -42,3 +42,11 @@ $router->group(['prefix' => '/season'], function() use ($router) {
     $router->put('/{id}', 'SeasonController@update');
     $router->delete('/{id}', 'SeasonController@delete');
 });
+
+$router->group(['prefix' => '/category'], function() use ($router) {
+    $router->get('/', 'CategoryController@list');
+    $router->get('/{id}', 'CategoryController@get');
+    $router->post('/', 'CategoryController@create');
+    $router->put('/{id}', 'CategoryController@update');
+    $router->delete('/{id}', 'CategoryController@delete');
+});
