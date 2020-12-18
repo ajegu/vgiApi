@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\DatabaseCreate;
+use App\Console\Commands\DatabaseDrop;
 use App\Console\Commands\DatabasePurge;
 use App\Console\Commands\DatabaseSeed;
 use Illuminate\Console\Scheduling\Schedule;
@@ -17,6 +19,8 @@ class Kernel extends ConsoleKernel
     protected $commands = [
         DatabasePurge::class,
         DatabaseSeed::class,
+        DatabaseDrop::class,
+        DatabaseCreate::class,
     ];
 
     /**
