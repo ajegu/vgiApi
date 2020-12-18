@@ -78,28 +78,28 @@ class DatabaseSeed extends Command
             ],
             Season::ENTITY_NAME => [
                 [
-                    'spr',
+                    '01#spr',
                     [
                         ['en', 'Spring'],
                         ['fr', 'Printemps'],
                     ]
                 ],
                 [
-                    'sum',
+                    '02#sum',
                     [
                         ['en', 'Summer'],
                         ['fr', 'Eté'],
                     ]
                 ],
                 [
-                    'fal',
+                    '03#fal',
                     [
                         ['en', 'Fall'],
                         ['fr', 'Automne'],
                     ]
                 ],
                 [
-                    'win',
+                    '04#win',
                     [
                         ['en', 'Winter'],
                         ['fr', 'Hiver'],
@@ -108,7 +108,7 @@ class DatabaseSeed extends Command
             ],
             Month::ENTITY_NAME => [
                 [
-                    'jan',
+                    '01#jan',
                     [
                         ['en', 'January'],
                         ['fr', 'Janvier'],
@@ -116,7 +116,7 @@ class DatabaseSeed extends Command
                     'win'
                 ],
                 [
-                    'feb',
+                    '02#feb',
                     [
                         ['en', 'February'],
                         ['fr', 'Février'],
@@ -124,7 +124,7 @@ class DatabaseSeed extends Command
                     'win'
                 ],
                 [
-                    'mar',
+                    '03#mar',
                     [
                         ['en', 'March'],
                         ['fr', 'Mars'],
@@ -132,7 +132,7 @@ class DatabaseSeed extends Command
                     'win'
                 ],
                 [
-                    'apr',
+                    '04#apr',
                     [
                         ['en', 'April'],
                         ['fr', 'Avril'],
@@ -140,7 +140,7 @@ class DatabaseSeed extends Command
                     'spr'
                 ],
                 [
-                    'may',
+                    '05#may',
                     [
                         ['en', 'May'],
                         ['fr', 'Mai'],
@@ -148,7 +148,7 @@ class DatabaseSeed extends Command
                     'spr'
                 ],
                 [
-                    'jun',
+                    '06#jun',
                     [
                         ['en', 'June'],
                         ['fr', 'Juin'],
@@ -156,7 +156,7 @@ class DatabaseSeed extends Command
                     'spr'
                 ],
                 [
-                    'jul',
+                    '07#jul',
                     [
                         ['en', 'July'],
                         ['fr', 'Juillet'],
@@ -164,7 +164,7 @@ class DatabaseSeed extends Command
                     'sum'
                 ],
                 [
-                    'aug',
+                    '08#aug',
                     [
                         ['en', 'August'],
                         ['fr', 'Août'],
@@ -172,7 +172,7 @@ class DatabaseSeed extends Command
                     'sum'
                 ],
                 [
-                    'sep',
+                    '09#sep',
                     [
                         ['en', 'September'],
                         ['fr', 'Septembre'],
@@ -180,7 +180,7 @@ class DatabaseSeed extends Command
                     'sum'
                 ],
                 [
-                    'oct',
+                    '10#oct',
                     [
                         ['en', 'October'],
                         ['fr', 'Octobre'],
@@ -188,7 +188,7 @@ class DatabaseSeed extends Command
                     'fal'
                 ],
                 [
-                    'nov',
+                    '11#nov',
                     [
                         ['en', 'November'],
                         ['fr', 'Novembre'],
@@ -196,7 +196,7 @@ class DatabaseSeed extends Command
                     'fal'
                 ],
                 [
-                    'dec',
+                    '12#dec',
                     [
                         ['en', 'December'],
                         ['fr', 'Décembre'],
@@ -206,28 +206,28 @@ class DatabaseSeed extends Command
             ],
             Category::ENTITY_NAME => [
                 [
-                    'veg',
+                    '01#veg',
                     [
                         ['en', 'Vegetables'],
                         ['fr', 'Légumes'],
                     ]
                 ],
                 [
-                    'fru',
+                    '02#fru',
                     [
                         ['en', 'Fruits'],
                         ['fr', 'Fruits'],
                     ]
                 ],
                 [
-                    'leg',
+                    '03#leg',
                     [
                         ['en', 'Legume'],
                         ['fr', 'Légumineuse'],
                     ]
                 ],
                 [
-                    'med',
+                    '04#med',
                     [
                         ['en', 'Medicinal plants'],
                         ['fr', 'Plantes médicinales'],
