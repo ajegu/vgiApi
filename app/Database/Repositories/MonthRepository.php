@@ -5,6 +5,7 @@ namespace App\Database\Repositories;
 
 
 use App\Database\ClientFacade;
+use App\Database\Indexes\BaseIndex;
 use App\Database\Indexes\InvertedIndex;
 use App\Exceptions\ItemNotFound;
 use App\Mappers\LocalizedTextMapper;
@@ -19,11 +20,12 @@ class MonthRepository extends AbstractRepository
     #[Pure]
     public function __construct(
         private ClientFacade $clientFacade,
+        private BaseIndex $baseIndex,
         private InvertedIndex $reversedIndex,
         private MonthMapper $mapper,
         private LocalizedTextMapper $textMapper
     ) {
-        parent::__construct($this->clientFacade, $this->textMapper);
+        parent::__construct($this->clientFacade, $this->textMapper, $baseIndex);
     }
 
     public function findAll(): array
@@ -31,7 +33,10 @@ class MonthRepository extends AbstractRepository
         $items = $this->clientFacade->findByPk(Month::ENTITY_NAME, $this->reversedIndex);
         return array_map(function(array $item) {
             $item = array_merge($item, [
-                'names' => $this->clientFacade->findByPkAndSk($item['pk'], LocalizedText::ENTITY_NAME)
+                'names' => $this->clientFacade->findByPkAndSk(
+                    pkValue: $item[$this->baseIndex->getPartitionKey()],
+                    skValue: LocalizedText::ENTITY_NAME
+                )
             ]);
             return $this->mapper->mapItemToMonth($item);
         }, $items);
@@ -45,7 +50,7 @@ class MonthRepository extends AbstractRepository
         }
         $monthItem = ['names' => []];
         foreach ($items as $item) {
-            if ($item['sk'] === Month::ENTITY_NAME) {
+            if ($item[$this->baseIndex->getSortKey()] === Month::ENTITY_NAME) {
                 $monthItem = array_merge($monthItem, $item);
             } else {
                 $monthItem['names'][] = $item;
@@ -103,7 +108,10 @@ class MonthRepository extends AbstractRepository
     {
         foreach ($object->getNames() as $name) {
             $item = $this->textMapper->mapLocalizedTextToItem($name, $object->getId(), 'name');
-            $this->clientFacade->delete($item['pk'], $item['sk']);
+            $this->clientFacade->delete(
+                $item[$this->baseIndex->getPartitionKey()],
+                $item[$this->baseIndex->getSortKey()]
+            );
         }
 
         $this->clientFacade->delete($object->getId(), Month::ENTITY_NAME);

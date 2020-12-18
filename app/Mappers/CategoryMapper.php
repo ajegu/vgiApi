@@ -4,16 +4,17 @@
 namespace App\Mappers;
 
 
+use App\Database\Indexes\BaseIndex;
 use App\Helpers\DateTimeHelper;
 use App\Models\Category;
 use App\Models\LocalizedText;
-use JetBrains\PhpStorm\ArrayShape;
 
 class CategoryMapper
 {
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
-        private LocalizedTextMapper $textMapper
+        private LocalizedTextMapper $textMapper,
+        private BaseIndex $baseIndex,
     ) {}
 
     public function mapItemToCategory(array $item): Category
@@ -23,7 +24,7 @@ class CategoryMapper
         }, $item['names']);
 
         return new Category(
-            id: $item['pk'],
+            id: $item[$this->baseIndex->getPartitionKey()],
             names: $names,
             createdAt: $this->dateTimeHelper->createFromString($item['createdAt']),
             updatedAt: $this->dateTimeHelper->createFromString($item['updatedAt']),
@@ -45,12 +46,11 @@ class CategoryMapper
         );
     }
 
-    #[ArrayShape(['pk' => "string", 'sk' => "string", 'createdAt' => "string", 'updatedAt' => "string"])]
     public function mapCategoryToItem(Category $category): array
     {
         return [
-            'pk' => $category->getId(),
-            'sk' => Category::ENTITY_NAME,
+            $this->baseIndex->getPartitionKey() => $category->getId(),
+            $this->baseIndex->getSortKey() => Category::ENTITY_NAME,
             'createdAt' => $this->dateTimeHelper->convertToString($category->getCreatedAt()),
             'updatedAt' => $this->dateTimeHelper->convertToString($category->getUpdatedAt())
         ];

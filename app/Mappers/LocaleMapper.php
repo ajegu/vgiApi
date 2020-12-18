@@ -4,33 +4,33 @@
 namespace App\Mappers;
 
 
+use App\Database\Indexes\BaseIndex;
 use App\Helpers\DateTimeHelper;
 use App\Models\Locale;
-use JetBrains\PhpStorm\ArrayShape;
 use JetBrains\PhpStorm\Pure;
 
 class LocaleMapper
 {
     public function __construct(
-        private DateTimeHelper $dateTimeHelper
+        private DateTimeHelper $dateTimeHelper,
+        private BaseIndex $baseIndex,
     ) {}
 
     public function mapItemToLocale(array $item): Locale
     {
         return new Locale(
-            id: $item['pk'],
+            id: $item[$this->baseIndex->getPartitionKey()],
             name: $item['name'],
             createdAt: $this->dateTimeHelper->createFromString($item['createdAt']),
             updatedAt: $this->dateTimeHelper->createFromString($item['updatedAt']),
         );
     }
 
-    #[ArrayShape(['pk' => "string", 'sk' => "string", 'name' => "string"])]
     public function mapLocaleToItem(Locale $locale): array
     {
         return [
-            'pk' => $locale->getId(),
-            'sk' => Locale::ENTITY_NAME,
+            $this->baseIndex->getPartitionKey() => $locale->getId(),
+            $this->baseIndex->getSortKey() => Locale::ENTITY_NAME,
             'name' => $locale->getName(),
             'createdAt' => $this->dateTimeHelper->convertToString($locale->getCreatedAt()),
             'updatedAt' => $this->dateTimeHelper->convertToString($locale->getUpdatedAt()),

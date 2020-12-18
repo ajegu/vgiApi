@@ -5,6 +5,7 @@ namespace App\Database\Repositories;
 
 
 use App\Database\ClientFacade;
+use App\Database\Indexes\BaseIndex;
 use App\Mappers\LocalizedTextMapper;
 use DateTime;
 
@@ -12,7 +13,8 @@ abstract class AbstractRepository implements RepositoryInterface
 {
     public function __construct(
         private ClientFacade $clientFacade,
-        private LocalizedTextMapper $textMapper
+        private LocalizedTextMapper $textMapper,
+        private BaseIndex $baseIndex,
     ) {}
 
     protected function updateNames(array $lastNames, array $nextNames, string $pk): array
@@ -37,7 +39,10 @@ abstract class AbstractRepository implements RepositoryInterface
             if (!$exists) {
                 unset($lastNames[$key]);
                 $item = $this->textMapper->mapLocalizedTextToItem($lastName, $pk, 'name');
-                $this->clientFacade->delete($item['pk'], $item['sk']);
+                $this->clientFacade->delete(
+                    $item[$this->baseIndex->getPartitionKey()],
+                    $item[$this->baseIndex->getSortKey()]
+                );
             }
         }
 

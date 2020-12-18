@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 
 
 use App\Database\ClientAdapter;
+use App\Database\Indexes\BaseIndex;
 use Illuminate\Console\Command;
 
 class DatabasePurge extends Command
@@ -15,6 +16,7 @@ class DatabasePurge extends Command
 
     public function __construct(
         private ClientAdapter $clientAdapter,
+        private BaseIndex $baseIndex,
     ){
         parent::__construct();
     }
@@ -27,8 +29,8 @@ class DatabasePurge extends Command
         $this->output->progressStart($count);
         foreach ($items as $item) {
             $params['Key'] = [
-                'pk' => $item['pk'],
-                'sk' => $item['sk'],
+                $this->baseIndex->getPartitionKey() => $item[$this->baseIndex->getPartitionKey()],
+                $this->baseIndex->getSortKey() => $item[$this->baseIndex->getSortKey()],
             ];
 
             $this->clientAdapter->deleteItem($params);

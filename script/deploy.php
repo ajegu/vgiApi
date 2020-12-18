@@ -9,3 +9,4 @@ $artisan = $app[Kernel::class];
 
 $artisan->call('database:drop');
 $artisan->call('database:create');
+$artisan->call('database:seed');

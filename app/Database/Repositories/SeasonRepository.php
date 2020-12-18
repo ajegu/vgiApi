@@ -5,6 +5,7 @@ namespace App\Database\Repositories;
 
 
 use App\Database\ClientFacade;
+use App\Database\Indexes\BaseIndex;
 use App\Database\Indexes\InvertedIndex;
 use App\Exceptions\ItemNotFound;
 use App\Mappers\LocalizedTextMapper;
@@ -19,11 +20,12 @@ class SeasonRepository extends AbstractRepository
     #[Pure]
     public function __construct(
         private ClientFacade $clientFacade,
+        private BaseIndex $baseIndex,
         private InvertedIndex $invertedIndex,
         private SeasonMapper $mapper,
         private LocalizedTextMapper $textMapper
     ) {
-        parent::__construct($this->clientFacade, $this->textMapper);
+        parent::__construct($this->clientFacade, $this->textMapper, $baseIndex);
     }
 
     /**
@@ -34,7 +36,10 @@ class SeasonRepository extends AbstractRepository
         $items = $this->clientFacade->findByPk(Season::ENTITY_NAME, $this->invertedIndex);
         return array_map(function(array $item) {
             $item = array_merge($item, [
-                'names' => $this->clientFacade->findByPkAndSk($item['pk'], LocalizedText::ENTITY_NAME)
+                'names' => $this->clientFacade->findByPkAndSk(
+                    pkValue: $item[$this->baseIndex->getPartitionKey()],
+                    skValue: LocalizedText::ENTITY_NAME
+                )
             ]);
             return $this->mapper->mapItemToSeason($item);
         }, $items);
@@ -53,7 +58,7 @@ class SeasonRepository extends AbstractRepository
         }
         $seasonItem = ['names' => []];
         foreach ($items as $item) {
-            if ($item['sk'] === Season::ENTITY_NAME) {
+            if ($item[$this->baseIndex->getSortKey()] === Season::ENTITY_NAME) {
                 $seasonItem = array_merge($seasonItem, $item);
             } else {
                 $seasonItem['names'][] = $item;
@@ -101,7 +106,10 @@ class SeasonRepository extends AbstractRepository
     {
         foreach ($object->getNames() as $name) {
             $item = $this->textMapper->mapLocalizedTextToItem($name, $object->getId(), 'name');
-            $this->clientFacade->delete($item['pk'], $item['sk']);
+            $this->clientFacade->delete(
+                $item[$this->baseIndex->getPartitionKey()],
+                $item[$this->baseIndex->getSortKey()]
+            );
         }
 
         $this->clientFacade->delete($object->getId(), Season::ENTITY_NAME);

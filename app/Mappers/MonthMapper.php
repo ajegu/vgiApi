@@ -4,16 +4,17 @@
 namespace App\Mappers;
 
 
+use App\Database\Indexes\BaseIndex;
 use App\Helpers\DateTimeHelper;
 use App\Models\LocalizedText;
 use App\Models\Month;
-use JetBrains\PhpStorm\ArrayShape;
 
 class MonthMapper
 {
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
-        private LocalizedTextMapper $textMapper
+        private LocalizedTextMapper $textMapper,
+        private BaseIndex $baseIndex,
     ) {}
 
     public function mapItemToMonth(array $item): Month
@@ -23,7 +24,7 @@ class MonthMapper
         }, $item['names']);
 
         return new Month(
-            id: $item['pk'],
+            id: $item[$this->baseIndex->getPartitionKey()],
             names: $names,
             seasonId: $item['seasonId'],
             createdAt: $this->dateTimeHelper->createFromString($item['createdAt']),
@@ -47,12 +48,11 @@ class MonthMapper
         );
     }
 
-    #[ArrayShape(['pk' => "string", 'sk' => "string", 'createdAt' => "string", 'updatedAt' => "string"])]
     public function mapMonthToItem(Month $month): array
     {
         return [
-            'pk' => $month->getId(),
-            'sk' => Month::ENTITY_NAME,
+            $this->baseIndex->getPartitionKey() => $month->getId(),
+            $this->baseIndex->getSortKey() => Month::ENTITY_NAME,
             'seasonId' => $month->getSeasonId(),
             'createdAt' => $this->dateTimeHelper->convertToString($month->getCreatedAt()),
             'updatedAt' => $this->dateTimeHelper->convertToString($month->getUpdatedAt())

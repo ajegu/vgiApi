@@ -12,12 +12,12 @@ class BaseIndex implements IndexInterface
 
     public function getPartitionKey(): string
     {
-        return 'pk';
+        return 'PK';
     }
 
     public function getSortKey(): string
     {
-        return 'sk';
+        return 'SK';
     }
 
 }

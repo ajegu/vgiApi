@@ -4,6 +4,7 @@
 namespace App\Database;
 
 
+use App\Database\Indexes\BaseIndex;
 use App\Database\Indexes\IndexInterface;
 use App\Exceptions\ItemNotFound;
 use Aws\DynamoDb\Marshaler;
@@ -12,20 +13,21 @@ class ClientFacade
 {
     public function __construct(
         private ClientAdapter $clientAdapter,
-        private Marshaler $marshaler
+        private Marshaler $marshaler,
+        private BaseIndex $baseIndex,
     ) {}
 
     public function findByPk(string $value, IndexInterface $index = null): array
     {
         $params = [];
-        $partitionKey = 'pk';
+        $partitionKey = $this->baseIndex->getPartitionKey();
 
         if (null !== $index) {
             $params['IndexName'] = $index->getName();
             $partitionKey = $index->getPartitionKey();
         }
 
-        $params['KeyConditionExpression'] = $partitionKey . ' = :value';
+        $params['KeyConditionExpression'] = "{$partitionKey} = :value";
         $params['ExpressionAttributeValues'] = [':value' => $this->marshaler->marshalValue($value)];
 
         $result = $this->clientAdapter->query($params);
@@ -43,8 +45,8 @@ class ClientFacade
     public function findByPkAndSk(string $pkValue, string $skValue, IndexInterface $index = null): array
     {
         $params = [];
-        $partitionKey = 'pk';
-        $sortKey = 'sk';
+        $partitionKey = $this->baseIndex->getPartitionKey();
+        $sortKey = $this->baseIndex->getSortKey();
 
         if (null !== $index) {
             $params['IndexName'] = $index->getName();
@@ -52,7 +54,7 @@ class ClientFacade
             $sortKey = $index->getSortKey();
         }
 
-        $params['KeyConditionExpression'] = $partitionKey . ' = :pkValue and begins_with(' . $sortKey . ', :skValue)';
+        $params['KeyConditionExpression'] = "{$partitionKey} = :pkValue and begins_with({$sortKey}, :skValue)";
         $params['ExpressionAttributeValues'] = [
             ':pkValue' => $this->marshaler->marshalValue($pkValue),
             ':skValue' => $this->marshaler->marshalValue($skValue),
@@ -78,8 +80,11 @@ class ClientFacade
      */
     public function findOneByPkAndSk(string $pkValue, string $skValue): array
     {
+        $partitionKey = $this->baseIndex->getPartitionKey();
+        $sortKey = $this->baseIndex->getSortKey();
+
         $params = [];
-        $params['KeyConditionExpression'] = 'pk = :pkValue and sk = :skValue';
+        $params['KeyConditionExpression'] = "{$partitionKey} = :pkValue and {$sortKey} = :skValue";
         $params['ExpressionAttributeValues'] = [
             ':pkValue' => $this->marshaler->marshalValue($pkValue),
             ':skValue' => $this->marshaler->marshalValue($skValue),
@@ -106,8 +111,8 @@ class ClientFacade
     {
         $params = [];
         $params['Key'] = [
-            'pk' => $this->marshaler->marshalValue($pkValue),
-            'sk' => $this->marshaler->marshalValue($skValue),
+            $this->baseIndex->getPartitionKey() => $this->marshaler->marshalValue($pkValue),
+            $this->baseIndex->getSortKey() => $this->marshaler->marshalValue($skValue),
         ];
 
         $this->clientAdapter->deleteItem($params);
