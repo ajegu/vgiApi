@@ -1,18 +1,47 @@
 # Dynamo DB - Access pattern
 
-## Entities
-food
-month
-season
+## Example data
+| PK                | SK                    | PK02 (GSI1)   |
+| ----------------- | --------------------- | ------------- |
+| en                | Locale                |               |
+| p1                | Food                  |               |
+| p2                | Food                  |               |
+| p3                | Food                  |               |
+| m1#01             | Month                 |               |
+| m2#02             | Month                 |               |
+| FoodMonth#m1#01   | en#name               | p1            |
+| FoodMonth#m1#01   | en#name               | p2            |
+| FoodMonth#m2#02   | en#name               | p2            |
+| FoodMonth#m2#02   | en#name               | p3            | 
 
-veggiesandi.com
+### Get all foods by month order by alphabetic
 
-PK  |   SK  |   Parent  | Name |
-app | Food | veg
-app | month#jan
-app | month#feb
-app | name#en
-app | name#fr
+Query:  
+````text
+Table = VGI (PK#SK)
+PK = FoodMonth#m1#01
+SK BEGINS_WITH Product#en 
+```` 
 
-jan | Month | win | |
-jan | name#en | | January
+Result:  
+
+| PK                | SK                    | PK02 (GSI1)   |  
+| ----------------- | --------------------- | ------------- |  
+| FoodMonth#m1#01   | en#name               | p2            |  
+| FoodMonth#m1#01   | en#name               | p1            |  
+
+
+### Get all months by product order by numeric value
+Query:
+````text
+Table = VGI
+Index = GSI1(PK02#PK)
+PK = p2
+SK BEGINS_WITH Month
+```` 
+Result:
+
+| PK                | SK                    | PK02 (GSI1)   |  
+| ----------------- | --------------------- | ------------- | 
+| FoodMonth#m1#01   | en#name               | p2            |
+| FoodMonth#m2#02   | en#name               | p2            |

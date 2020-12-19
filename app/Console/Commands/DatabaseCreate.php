@@ -6,6 +6,7 @@ namespace App\Console\Commands;
 
 use App\Database\Indexes\BaseIndex;
 use App\Database\Indexes\InvertedIndex;
+use App\Database\Indexes\ParentIndex;
 use Aws\DynamoDb\DynamoDbClient;
 use Aws\DynamoDb\Exception\DynamoDbException;
 use Illuminate\Console\Command;
@@ -23,8 +24,10 @@ class DatabaseCreate extends Command
         private LoggerInterface $logger,
         private BaseIndex $baseIndex,
         private InvertedIndex $invertedIndex,
+        private ParentIndex $parentIndex,
         private string $tableName
-    ){
+    )
+    {
         parent::__construct();
     }
 
@@ -49,13 +52,16 @@ class DatabaseCreate extends Command
                 ], [
                     'AttributeName' => $this->baseIndex->getSortKey(),
                     'AttributeType' => 'S'
+                ], [
+                    'AttributeName' => $this->parentIndex->getPartitionKey(),
+                    'AttributeType' => 'S'
                 ]
             ],
             'KeySchema' => [
                 [
                     'AttributeName' => $this->baseIndex->getPartitionKey(),
                     'KeyType' => 'HASH'
-                ],[
+                ], [
                     'AttributeName' => $this->baseIndex->getSortKey(),
                     'KeyType' => 'RANGE'
                 ]
@@ -67,8 +73,26 @@ class DatabaseCreate extends Command
                         [
                             'AttributeName' => $this->invertedIndex->getPartitionKey(),
                             'KeyType' => 'HASH'
-                        ],[
+                        ], [
                             'AttributeName' => $this->invertedIndex->getSortKey(),
+                            'KeyType' => 'RANGE'
+                        ]
+                    ],
+                    'Projection' => [
+                        'ProjectionType' => 'ALL'
+                    ],
+                    'ProvisionedThroughput' => [
+                        'ReadCapacityUnits' => 1,
+                        'WriteCapacityUnits' => 1,
+                    ]
+                ], [
+                    'IndexName' => $this->parentIndex->getName(),
+                    'KeySchema' => [
+                        [
+                            'AttributeName' => $this->parentIndex->getPartitionKey(),
+                            'KeyType' => 'HASH'
+                        ], [
+                            'AttributeName' => $this->parentIndex->getSortKey(),
                             'KeyType' => 'RANGE'
                         ]
                     ],

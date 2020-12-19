@@ -5,6 +5,7 @@ namespace App\Mappers;
 
 
 use App\Database\Indexes\BaseIndex;
+use App\Database\Indexes\ParentIndex;
 use App\Helpers\DateTimeHelper;
 use App\Models\LocalizedText;
 use App\Models\Month;
@@ -14,6 +15,7 @@ class MonthMapper
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
         private LocalizedTextMapper $textMapper,
+        private ParentIndex $parentIndex,
         private BaseIndex $baseIndex,
     ) {}
 
@@ -26,7 +28,7 @@ class MonthMapper
         return new Month(
             id: $item[$this->baseIndex->getPartitionKey()],
             names: $names,
-            seasonId: $item['seasonId'],
+            seasonId: $item[$this->parentIndex->getPartitionKey()],
             createdAt: $this->dateTimeHelper->createFromString($item['createdAt']),
             updatedAt: $this->dateTimeHelper->createFromString($item['updatedAt']),
         );
@@ -53,7 +55,7 @@ class MonthMapper
         return [
             $this->baseIndex->getPartitionKey() => $month->getId(),
             $this->baseIndex->getSortKey() => Month::ENTITY_NAME,
-            'seasonId' => $month->getSeasonId(),
+            $this->parentIndex->getPartitionKey() => $month->getSeasonId(),
             'createdAt' => $this->dateTimeHelper->convertToString($month->getCreatedAt()),
             'updatedAt' => $this->dateTimeHelper->convertToString($month->getUpdatedAt())
         ];
