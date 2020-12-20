@@ -50,3 +50,13 @@ $router->group(['prefix' => '/category'], function() use ($router) {
     $router->put('/{id}', 'CategoryController@update');
     $router->delete('/{id}', 'CategoryController@delete');
 });
+
+$router->group(['prefix' => '/food'], function() use ($router) {
+    $router->get('/', 'FoodController@list');
+    $router->get('/{id}', 'FoodController@get');
+    $router->post('/', 'FoodController@create');
+    $router->put('/{id}', 'FoodController@update');
+    $router->delete('/{id}', 'FoodController@delete');
+
+    $router->post('/{id}/image', 'FoodController@updateImage');
+});

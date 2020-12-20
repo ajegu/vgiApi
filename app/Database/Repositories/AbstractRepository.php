@@ -7,6 +7,7 @@ namespace App\Database\Repositories;
 use App\Database\ClientFacade;
 use App\Database\Indexes\BaseIndex;
 use App\Mappers\LocalizedTextMapper;
+use App\Models\LocalizedText;
 use DateTime;
 
 abstract class AbstractRepository implements RepositoryInterface
@@ -17,6 +18,26 @@ abstract class AbstractRepository implements RepositoryInterface
         private BaseIndex $baseIndex,
     ) {}
 
+    /**
+     * @param LocalizedText[] $textList
+     * @param string $partitionKey
+     * @param string $attribute
+     */
+    protected function saveLocalizedTextList(array $textList, string $partitionKey, string $attribute): void
+    {
+        foreach ($textList as $text) {
+            $text->setCreatedAt(new DateTime());
+            $item = $this->textMapper->mapLocalizedTextToItem($text, $partitionKey, $attribute);
+            $this->clientFacade->save($item);
+        }
+    }
+
+    /**
+     * @param LocalizedText[] $lastNames
+     * @param LocalizedText[] $nextNames
+     * @param string $pk
+     * @return array
+     */
     protected function updateNames(array $lastNames, array $nextNames, string $pk): array
     {
         // check for deleted or updated names
@@ -57,7 +78,7 @@ abstract class AbstractRepository implements RepositoryInterface
             }
 
             if (!$exists) {
-                $nextName->setCreatedAt(new DateTime());
+                $nextName->setUpdatedAt(new DateTime());
                 $nameItem = $this->textMapper->mapLocalizedTextToItem($nextName, $pk, 'name');
                 $this->clientFacade->save($nameItem);
                 $lastNames[] = $nextName;
@@ -65,5 +86,22 @@ abstract class AbstractRepository implements RepositoryInterface
         }
 
         return $lastNames;
+    }
+
+    /**
+     * @param LocalizedText[] $textList
+     * @param string $partitionKey
+     * @param string $attribute
+     */
+    protected function deleteLocalizedTextList(array $textList, string $partitionKey, string $attribute): void
+    {
+        foreach ($textList as $text) {
+            $text->setCreatedAt(new DateTime());
+            $item = $this->textMapper->mapLocalizedTextToItem($text, $partitionKey, $attribute);
+            $this->clientFacade->delete(
+                $item[$this->baseIndex->getPartitionKey()],
+                $item[$this->baseIndex->getSortKey()],
+            );
+        }
     }
 }

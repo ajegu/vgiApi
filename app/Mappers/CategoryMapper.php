@@ -7,9 +7,8 @@ namespace App\Mappers;
 use App\Database\Indexes\BaseIndex;
 use App\Helpers\DateTimeHelper;
 use App\Models\Category;
-use App\Models\LocalizedText;
 
-class CategoryMapper
+class CategoryMapper extends AbstractMapper
 {
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
@@ -33,12 +32,7 @@ class CategoryMapper
 
     public function mapRequestDataToCategory(array $data): Category
     {
-        $names = array_map(function(array $nameData) {
-            return new LocalizedText(
-                $nameData['name'],
-                $nameData['localeId'],
-            );
-        }, $data['names']);
+        $names = $this->mapRequestDataToLocalizedText($data['names']);
 
         return new Category(
             $data['id'],

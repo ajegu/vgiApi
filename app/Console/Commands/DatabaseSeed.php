@@ -64,7 +64,10 @@ class DatabaseSeed extends Command
     {
         $names = [];
         foreach ($data as $row) {
-            $names[] = new LocalizedText($row[0], $row[1]);
+            $names[] = new LocalizedText(
+                name: $row[1],
+                localeId: $row[0]
+            );
         }
         return $names;
     }

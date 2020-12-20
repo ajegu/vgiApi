@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Console\Commands\BucketCreate;
+use App\Console\Commands\BucketDelete;
 use App\Console\Commands\DatabaseCreate;
 use App\Console\Commands\DatabaseDrop;
 use App\Console\Commands\DatabasePurge;
@@ -21,6 +23,8 @@ class Kernel extends ConsoleKernel
         DatabaseSeed::class,
         DatabaseDrop::class,
         DatabaseCreate::class,
+        BucketCreate::class,
+        BucketDelete::class
     ];
 
     /**

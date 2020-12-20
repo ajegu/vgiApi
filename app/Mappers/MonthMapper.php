@@ -7,10 +7,9 @@ namespace App\Mappers;
 use App\Database\Indexes\BaseIndex;
 use App\Database\Indexes\ParentIndex;
 use App\Helpers\DateTimeHelper;
-use App\Models\LocalizedText;
 use App\Models\Month;
 
-class MonthMapper
+class MonthMapper extends AbstractMapper
 {
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
@@ -36,12 +35,7 @@ class MonthMapper
 
     public function mapRequestDataToMonth(array $data): Month
     {
-        $names = array_map(function(array $nameData) {
-            return new LocalizedText(
-                $nameData['name'],
-                $nameData['localeId'],
-            );
-        }, $data['names']);
+        $names = $names = $this->mapRequestDataToLocalizedText($data['names']);;
 
         return new Month(
             $data['id'],

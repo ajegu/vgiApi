@@ -6,10 +6,9 @@ namespace App\Mappers;
 
 use App\Database\Indexes\BaseIndex;
 use App\Helpers\DateTimeHelper;
-use App\Models\LocalizedText;
 use App\Models\Season;
 
-class SeasonMapper
+class SeasonMapper extends AbstractMapper
 {
     public function __construct(
         private DateTimeHelper $dateTimeHelper,
@@ -33,12 +32,7 @@ class SeasonMapper
 
     public function mapRequestDataToSeason(array $data): Season
     {
-        $names = array_map(function(array $nameData) {
-            return new LocalizedText(
-                $nameData['name'],
-                $nameData['localeId'],
-            );
-        }, $data['names']);
+        $names = $this->mapRequestDataToLocalizedText($data['names']);
 
         return new Season(
             $data['id'],
