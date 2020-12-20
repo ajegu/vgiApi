@@ -59,4 +59,7 @@ $router->group(['prefix' => '/food'], function() use ($router) {
     $router->delete('/{id}', 'FoodController@delete');
 
     $router->post('/{id}/image', 'FoodController@updateImage');
+
+    $router->get('/category/{id}', 'FoodController@listByCategory');
+    $router->get('/month/{id}', 'FoodController@listByMonth');
 });

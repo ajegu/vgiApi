@@ -4,7 +4,9 @@
 namespace App\Http\Controllers;
 
 
+use App\Database\Repositories\CategoryRepository;
 use App\Database\Repositories\FoodRepository;
+use App\Database\Repositories\MonthRepository;
 use App\Exceptions\ItemNotFound;
 use App\Mappers\FoodMapper;
 use App\Rules\CategoryUnknown;
@@ -25,6 +27,8 @@ class FoodController extends Controller
         private ClientAdapter $clientAdapter,
         private FoodMapper $mapper,
         private FoodRepository $repo,
+        private MonthRepository $monthRepo,
+        private CategoryRepository $categoryRepo,
     ) {}
 
     public function list(): JsonResponse
@@ -137,5 +141,31 @@ class FoodController extends Controller
         $food = $this->repo->updateImage($food, $imageName);
 
         return new JsonResponse($food, 200);
+    }
+
+    /**
+     * @param string $id
+     * @return JsonResponse
+     * @throws ItemNotFound
+     */
+    public function listByCategory(string $id): JsonResponse
+    {
+        $category = $this->categoryRepo->findOne($id);
+        $foodList = $this->repo->findAllByCategory($category);
+
+        return new JsonResponse($foodList, 200);
+    }
+
+    /**
+     * @param string $id
+     * @return JsonResponse
+     * @throws ItemNotFound
+     */
+    public function listByMonth(string $id): JsonResponse
+    {
+        $month = $this->monthRepo->findOne($id);
+        $foodList = $this->repo->findAllByMonth($month);
+
+        return new JsonResponse($foodList, 200);
     }
 }

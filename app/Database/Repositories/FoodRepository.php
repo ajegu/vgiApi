@@ -12,6 +12,7 @@ use App\Exceptions\ItemNotFound;
 use App\Helpers\DateTimeHelper;
 use App\Mappers\FoodMapper;
 use App\Mappers\LocalizedTextMapper;
+use App\Models\Category;
 use App\Models\Food;
 use App\Models\LocalizedText;
 use App\Models\Month;
@@ -155,6 +156,47 @@ class FoodRepository extends AbstractRepository
         $this->clientFacade->save($item);
 
         return $food;
+    }
+
+    /**
+     * @param Category $category
+     * @return Food[]
+     * @throws ItemNotFound
+     */
+    public function findAllByCategory(Category $category): array
+    {
+        $itemList = $this->clientFacade->findByPk(
+            $category->getId(),
+            $this->parentIndex
+        );
+
+        $foodList = [];
+        foreach ($itemList as $item) {
+            if (Food::ENTITY_NAME === $item[$this->baseIndex->getSortKey()]) {
+                $foodList[] = $this->findOne($item[$this->baseIndex->getPartitionKey()]);
+            }
+        }
+
+        return $foodList;
+    }
+
+    /**
+     * @param Month $month
+     * @return Food[]
+     * @throws ItemNotFound
+     */
+    public function findAllByMonth(Month $month): array
+    {
+        $itemList = $this->clientFacade->findByPk(
+            Food::ENTITY_NAME . Month::ENTITY_NAME . '#' . $month->getId()
+        );
+
+        $foodList = [];
+        foreach ($itemList as $item) {
+            $foodList[] = $this->findOne($item[$this->parentIndex->getPartitionKey()]);
+        }
+
+        return $foodList;
     }
 
     private function findFoodMonth(string $partitionKey): array
