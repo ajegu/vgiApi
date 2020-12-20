@@ -1,0 +1,50 @@
+service: vgi-api
+
+provider:
+    name: aws
+    region: eu-west-3
+    runtime: provided.al2
+    stage: ${opt:stage, 'dev'}
+    iamManagedPolicies:
+      - arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess
+      - arn:aws:iam::aws:policy/AmazonS3FullAccess
+    environment:
+      APP_NAME: vgi-api
+      APP_ENV: dev
+      APP_DEBUG: true
+      LOG_CHANNEL: stderr
+      APP_TIMEZONE: "Europe/Paris"
+      AWS_DYNAMODB_TABLE: "vgi_dev"
+      AWS_BUCKET_NAME: "asset-vgi-dev"
+    httpApi:
+      authorizers:
+        vgiCognito:
+          identitySource: '$request.header.Authorization'
+          issuerUrl: 'https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_hP2QLuLc2'
+          audience:
+            - '7tm2k280hc36ls8sk7a6o5m04t'
+
+plugins:
+    - ./vendor/bref/bref
+
+functions:
+    api:
+        handler: public/index.php
+        description: ''
+        timeout: 28 # in seconds (API Gateway has a timeout of 29 seconds)
+        layers:
+            - ${bref:layer.php-80-fpm}
+        events:
+          - httpApi: # HTTP API endpoint
+              method: '*'
+              path: '*'
+              authorizer:
+                name: vgiCognito
+                scopes:
+                  - vgi-api/read
+
+# Exclude files from deployment
+package:
+    exclude:
+        - 'node_modules/**'
+        - 'tests/**'
